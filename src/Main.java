@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 class ImageTrace{
     int x;
@@ -21,10 +22,67 @@ public class Main {
     public static String source_image_path = "images\\source.png";
     public static String secret_message = "ciao";
 
+    public static String read_image_path = "images\\result.png";
+
     public static ImageTrace current_pixel = new ImageTrace(0,0);
     public static List<Pixel> pixels = new ArrayList<Pixel>();
 
     public static void main(String[] args){
+        Scanner sc = new Scanner(System.in);
+        String decision = "";
+        do {
+            System.out.println("Do you want to create an image, read it or exit? (c/r/e)");
+            decision = sc.nextLine();
+            switch (decision){
+                case "c":
+                    HideMessage();
+                    break;
+                case "r":
+                    ReadImage();
+                    break;
+                case "e":
+                    break;
+                default:
+                    System.out.println("Please retype");
+                    break;
+            }
+        }while (!decision.equals("e"));
+    }
+
+    /*
+        Pixel: [Alpha][Red][Green][Blue]
+        8 bit for each section
+     */
+
+    private static void ReadImage(){
+        BufferedImage result_image = GetImage(read_image_path);
+        int tot_pixels = result_image.getWidth() * result_image.getHeight();
+        int pos = 0;
+        String final_message = "";
+        String char_collection = "";
+        System.out.println("READING MESSAGE...");
+        for(int x = 0; x < result_image.getWidth(); x++){
+            for(int y = 0; y < result_image.getHeight(); y++){
+                String value = NormalizeASCII(GetPixel(result_image), 8);
+                Pixel p = new Pixel(current_pixel.x, current_pixel.y, value);
+                String blue = p.GetBlue();
+
+                if(pos % 4 == 0){
+                    char ascii_char = (char)Integer.parseInt(char_collection, 2);
+                    final_message += ascii_char;
+                    char_collection = "";
+                }
+
+                char_collection += blue.substring(6,8);
+                pos++;
+                NextPixel(result_image);
+            }
+        }
+        System.out.println("Compelted");
+        System.out.println("Hidden message : " + final_message);
+    }
+
+    private static void HideMessage(){
         BufferedImage source_image = GetImage(source_image_path);
         int tot_pixels = source_image.getWidth() * source_image.getHeight();
         int updated_pixels = 0;
@@ -81,13 +139,7 @@ public class Main {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
-
-    /*
-        Pixel: [Alpha][Red][Green][Blue]
-        8 bit for each section
-     */
 
     private static String GetPixel(BufferedImage img){
         String pixel = Integer.toBinaryString(img.getRGB(current_pixel.x, current_pixel.y));
