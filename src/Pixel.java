@@ -86,6 +86,8 @@ public class Pixel {
     }
 
     public void UpdatePixel(String new_pixel){
-        pixel = new_pixel;
+        blue = new_pixel;
+        pixel = alpha + red + green + blue;
+
     }
 }

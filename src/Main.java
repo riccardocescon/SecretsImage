@@ -2,32 +2,27 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-class ImageTrace{
-    int x;
-    int y;
-
-    ImageTrace(int _x, int _y){
-        x = _x;
-        y = _y;
-    }
-}
-
 public class Main {
-    public static String source_image_path = "images\\source.png";
-    public static String secret_message = "ciao";
+    public static String source_image_path = "SecretsImage\\images\\source.png";
+    public static String secret_message = "baradel è un coglione";
 
-    public static String read_image_path = "images\\result.png";
+    public static String read_image_path = "SecretsImage\\images\\result.png";
+
+    public static String result_text_file = "SecretsImage\\images\\result.txt";
 
     public static ImageTrace current_pixel = new ImageTrace(0,0);
     public static List<Pixel> pixels = new ArrayList<Pixel>();
 
     public static void main(String[] args){
+        System.out.println("Working Directory = " + System.getProperty("user.dir"));
         Scanner sc = new Scanner(System.in);
         String decision = "";
         do {
@@ -54,20 +49,29 @@ public class Main {
         8 bit for each section
      */
 
+    private static void SeePixels(BufferedImage img){
+        for(int i = 0; i < 4; i++){
+            String value = Integer.toBinaryString(img.getRGB(0, i));
+            System.out.println("(0;" + i + ") " + value);
+        }
+    }
+
     private static void ReadImage(){
         BufferedImage result_image = GetImage(read_image_path);
         int tot_pixels = result_image.getWidth() * result_image.getHeight();
         int pos = 0;
         String final_message = "";
         String char_collection = "";
+        SeePixels(result_image);
         System.out.println("READING MESSAGE...");
         for(int x = 0; x < result_image.getWidth(); x++){
             for(int y = 0; y < result_image.getHeight(); y++){
-                String value = NormalizeASCII(GetPixel(result_image), 8);
+                String value = Integer.toBinaryString(result_image.getRGB(current_pixel.x, current_pixel.y));
+                System.out.println("Value : " + value);
                 Pixel p = new Pixel(current_pixel.x, current_pixel.y, value);
                 String blue = p.GetBlue();
 
-                if(pos % 4 == 0){
+                if(pos % 4 == 0 && pos != 0){
                     char ascii_char = (char)Integer.parseInt(char_collection, 2);
                     final_message += ascii_char;
                     char_collection = "";
@@ -79,7 +83,35 @@ public class Main {
             }
         }
         System.out.println("Compelted");
-        System.out.println("Hidden message : " + final_message);
+        CreateFile(result_text_file);
+        WriteToFile(result_text_file, final_message);
+        System.out.println("Hidden message has been saved to result.txt");
+
+    }
+
+    private static void CreateFile(String path){
+        try {
+            File myObj = new File(path);
+            if (myObj.createNewFile()) {
+                System.out.println("File created: " + myObj.getName());
+            } else {
+                System.out.println("File already exists.");
+            }
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+    }
+
+    private static void WriteToFile(String path, String message){
+        try {
+            FileWriter myWriter = new FileWriter(path);
+            myWriter.write(message);
+            myWriter.close();
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
     }
 
     private static void HideMessage(){
@@ -88,7 +120,7 @@ public class Main {
         int updated_pixels = 0;
 
         BufferedImage destination_image = source_image;
-
+        SeePixels(source_image);
         System.out.println("CLONING MESSAGE PIXELS...");
 
         byte[] b = secret_message.getBytes(StandardCharsets.US_ASCII);
@@ -131,11 +163,12 @@ public class Main {
             }
         }
 
-        File destination = new File("images\\result.png");
+        File destination = new File("SecretsImage\\images\\result.png");
 
         try {
             ImageIO.write(destination_image, "png", destination);
             System.out.println("Completed");
+            SeePixels(destination_image);
         } catch (IOException e) {
             e.printStackTrace();
         }
