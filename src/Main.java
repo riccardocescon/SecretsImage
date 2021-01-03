@@ -11,8 +11,9 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Main {
-    public static String source_image_path = "SecretsImage\\images\\source.png";
-    public static String secret_message = "baradel è un coglione";
+    public static String source_image_path = "";
+    public static String destination_image_path = "";
+    public static String secret_message = "";
 
     public static String read_image_path = "SecretsImage\\images\\result.png";
 
@@ -21,12 +22,49 @@ public class Main {
     public static ImageTrace current_pixel = new ImageTrace(0,0);
     public static List<Pixel> pixels = new ArrayList<Pixel>();
 
+    public void SetSourceData(String path, String message){
+        path = path.substring(15);
+        String file_name = GetFileName(path);
+        source_image_path = GetParentPath(path) + file_name;
+        destination_image_path = GetParentPath(path) + "result.png";
+
+        System.out.println("source path : " + source_image_path);
+        System.out.println("dest path : " + destination_image_path);
+
+        secret_message = message;
+
+        Preview();
+    }
+
+    public void SetReadData(String path){
+        path = path.substring(15);
+        String file_name = GetFileName(path);
+        read_image_path = GetParentPath(path) + file_name;
+        System.out.println("destinatio : " + read_image_path);
+        ReadImage();
+    }
+
+    private String GetFileName(String path){
+        String[] parts = path.split("\\\\");
+        return  parts[parts.length - 1];
+    }
+
+    private String GetParentPath(String path){
+        String div = "\\\\";
+        String[] parts = path.split(div);
+        String parent = "";
+        for(int i = 0; i < parts.length - 1; i++){
+            parent += parts[i] + "\\\\";
+        }
+        return parent;
+    }
+
     public static void main(String[] args){
         System.out.println("Working Directory = " + System.getProperty("user.dir"));
         Scanner sc = new Scanner(System.in);
         String decision = "";
         do {
-            System.out.println("Do you want to create an image, read it or exit? (c/r/e)");
+            System.out.println("Do you want to create an image, read it , preview, or exit? (c/r/p/e)");
             decision = sc.nextLine();
             switch (decision){
                 case "c":
@@ -34,6 +72,9 @@ public class Main {
                     break;
                 case "r":
                     ReadImage();
+                    break;
+                case "p":
+                    Preview();
                     break;
                 case "e":
                     break;
@@ -48,6 +89,16 @@ public class Main {
         Pixel: [Alpha][Red][Green][Blue]
         8 bit for each section
      */
+
+    private static void Preview(){
+        BufferedImage source_image = GetImage(source_image_path);
+        int tot_pixels = source_image.getWidth() * source_image.getHeight();
+        int tot_bits = tot_pixels * 2;
+        int tot_chars = tot_bits / 8;
+        float perc = secret_message.length() * 100 / tot_chars;
+        GUI.ShowPreview(true,Float.toString(perc));
+        System.out.println("You can hide max : " + tot_chars + " in this image. \nYou are using : " + secret_message.length());
+    }
 
     private static void SeePixels(BufferedImage img){
         for(int i = 0; i < 4; i++){
@@ -83,9 +134,10 @@ public class Main {
             }
         }
         System.out.println("Compelted");
-        CreateFile(result_text_file);
-        WriteToFile(result_text_file, final_message);
-        System.out.println("Hidden message has been saved to result.txt");
+        //CreateFile(result_text_file);
+        //WriteToFile(result_text_file, final_message);
+        //System.out.println("Hidden message has been saved to result.txt");
+        GUI.ShowResult(final_message);
 
     }
 
@@ -114,7 +166,7 @@ public class Main {
         }
     }
 
-    private static void HideMessage(){
+    public static void HideMessage(){
         BufferedImage source_image = GetImage(source_image_path);
         int tot_pixels = source_image.getWidth() * source_image.getHeight();
         int updated_pixels = 0;
@@ -163,12 +215,18 @@ public class Main {
             }
         }
 
-        File destination = new File("SecretsImage\\images\\result.png");
+        File destination = new File(destination_image_path);System.out.println("creating file : " + destination_image_path);
+        try {
+            if(!destination.exists())
+            destination.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         try {
             ImageIO.write(destination_image, "png", destination);
             System.out.println("Completed");
-            SeePixels(destination_image);
+            GUI.ShowResult(true, "File successfully created");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -209,7 +267,7 @@ public class Main {
         File file = new File(path);
 
         try {
-            BufferedImage img = ImageIO.read(file);
+            BufferedImage img = ImageIO.read(new File(path));
             return img;
         } catch (IOException e) {
             e.printStackTrace();
