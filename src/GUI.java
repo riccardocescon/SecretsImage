@@ -100,6 +100,20 @@ public class GUI extends JFrame {
         read_panel = new JPanel(new SpringLayout());
         read_numPairs = 0;
 
+        JLabel hidden = new JLabel("", JLabel.RIGHT);
+        read_panel.add(hidden);
+        JButton back = new JButton("Back");
+        back.setBackground(color_ui);
+        back.setAlignmentX(JButton.LEFT);
+        hidden.setLabelFor(back);
+        read_panel.add(back);
+        read_numPairs++;
+
+        back.addActionListener(e->{
+            ClearFrame(read_panel);
+            HomePanel();
+        });
+
         JLabel image_lable = new JLabel("Image: ", JLabel.TRAILING);
         image_lable.setForeground(color_text);
         read_panel.add(image_lable);
@@ -280,6 +294,20 @@ public class GUI extends JFrame {
         t.setLabelFor(title);
         p.add(title);
         numPairs++;
+
+        JLabel hidden = new JLabel("", JLabel.RIGHT);
+        p.add(hidden);
+        JButton back = new JButton("Back");
+        back.setBackground(color_ui);
+        back.setAlignmentX(JButton.LEFT);
+        hidden.setLabelFor(back);
+        p.add(back);
+        numPairs++;
+
+        back.addActionListener(e->{
+            ClearFrame(p);
+            HomePanel();
+        });
 
         JLabel image_lable = new JLabel("Image: ", JLabel.TRAILING);
         image_lable.setForeground(color_text);

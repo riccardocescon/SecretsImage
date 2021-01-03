@@ -139,6 +139,7 @@ public class Main {
             for(int y = 0; y < result_image.getHeight(); y++){
                 String value = Integer.toBinaryString(result_image.getRGB(current_pixel.x, current_pixel.y));
                 System.out.println("Value : " + value);
+
                 Pixel p = new Pixel(current_pixel.x, current_pixel.y, value);
                 String blue = p.GetBlue();
 
@@ -154,9 +155,6 @@ public class Main {
             }
         }
         System.out.println("Compelted");
-        //CreateFile(result_text_file);
-        //WriteToFile(result_text_file, final_message);
-        //System.out.println("Hidden message has been saved to result.txt");
         GUI.ShowResult(final_message);
 
     }
