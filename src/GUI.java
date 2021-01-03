@@ -85,20 +85,6 @@ public class GUI extends JFrame {
             ReadFile();
         });
 
-        //TEMP
-        /*String something = "<html>here is osme text ajsdkls hfuisdfhjdfhdsuifjsd fsdhfhdsifdsfhdsuifjdsfhsd iufdifjdu fhsdufdjfdhfu ishfuid sfhuidsfhsdu fjsdfhsdfus dfjsdufhs difusdj f sdhfusdf</html>";
-
-        JLabel temp = new JLabel("Prova: ", JLabel.TRAILING);
-        temp.setForeground(color_text);
-        listPane.add(temp);
-        JLabel text = new JLabel(something);
-        text.setSize(10, 500);
-        text.setForeground(color_text);
-        temp.setLabelFor(text);
-        listPane.add(text);
-        numPairs++;
-        *///
-
         //Lay out the panel.
         SpringUtilities.makeCompactGrid(listPane,
                 numPairs, 2, //rows, cols
@@ -194,6 +180,56 @@ public class GUI extends JFrame {
         read_panel.add(scroller);
         read_numPairs++;
 
+        //after message
+
+        JLabel current_save_path = new JLabel("Current save path: ", JLabel.TRAILING);
+        current_save_path.setForeground(color_text);
+        read_panel.add(current_save_path);
+        JLabel current_save_path_label = new JLabel(Main.GetSourceFilePath());
+        current_save_path_label.setForeground(color_text);
+        current_save_path.setLabelFor(current_save_path_label);
+        read_panel.add(current_save_path_label);
+        read_numPairs++;
+
+        JLabel save_path = new JLabel("", JLabel.TRAILING);
+        read_panel.add(save_path);
+        JButton save_button_path = new JButton("Select path");
+        save_button_path.setBackground(color_ui);
+        save_path.setLabelFor(save_button_path);
+        read_panel.add(save_button_path);
+        read_numPairs++;
+
+        save_button_path.addActionListener(e ->{
+            JFileChooser chooser = new JFileChooser();
+            chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            chooser.setAcceptAllFileFilterUsed(false);
+
+            if(chooser.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION){
+                current_save_path_label.setText(String.valueOf(chooser.getSelectedFile()));
+                secretsImage.ChangeDestinationPath(String.valueOf(chooser.getCurrentDirectory()));
+            }
+        });
+
+        JLabel save_label_name = new JLabel("", JLabel.TRAILING);
+        read_panel.add(save_label_name);
+        JTextField save_text_name = new JTextField(10);
+        save_text_name.setBackground(color_ui);
+        save_label_name.setLabelFor(save_text_name);
+        read_panel.add(save_text_name);
+        read_numPairs++;
+
+        JLabel save_label = new JLabel("", JLabel.TRAILING);
+        read_panel.add(save_label);
+        JButton save_button = new JButton("Save");
+        save_button.setBackground(color_ui);
+        save_label.setLabelFor(save_button);
+        read_panel.add(save_button);
+        read_numPairs++;
+
+        save_button.addActionListener(e ->{
+            secretsImage.SaveToFile(current_save_path_label.getText(), save_text_name.getText());
+        });
+
         //Lay out the panel.
         SpringUtilities.makeCompactGrid(read_panel,
                 read_numPairs, 2, //rows, cols
@@ -203,6 +239,28 @@ public class GUI extends JFrame {
 
         read_result_value.setText("<html>" + result + "</html>");
         read_result_value.resize(read_result_value.preferredSize());
+        frame.add(read_panel);
+        frame.pack();
+        SetFrame();
+    }
+
+    public static void ShowReadSaveResult(String result){
+        JLabel result_text = new JLabel("Result: ", JLabel.TRAILING);
+        result_text.setForeground(color_text);
+        read_panel.add(result_text);
+        JLabel result_value = new JLabel(result);
+        result_value.setForeground(color_text);
+        result_value.setBackground(color_ui);
+        result_text.setLabelFor(result_value);
+        read_panel.add(result_value);
+        read_numPairs++;
+
+        //Lay out the panel.
+        SpringUtilities.makeCompactGrid(read_panel,
+                read_numPairs, 2, //rows, cols
+                6, 6,        //initX, initY
+                6, 10);       //xPad, yPad
+
         frame.add(read_panel);
         frame.pack();
         SetFrame();

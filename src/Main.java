@@ -22,7 +22,9 @@ public class Main {
     public static ImageTrace current_pixel = new ImageTrace(0,0);
     public static List<Pixel> pixels = new ArrayList<Pixel>();
 
-    public void SetSourceData(String path, String message){
+    public static String final_message = "";
+
+    public static void SetSourceData(String path, String message){
         path = path.substring(15);
         String file_name = GetFileName(path);
         source_image_path = GetParentPath(path) + file_name;
@@ -36,7 +38,7 @@ public class Main {
         Preview();
     }
 
-    public void SetReadData(String path){
+    public static void SetReadData(String path){
         path = path.substring(15);
         String file_name = GetFileName(path);
         read_image_path = GetParentPath(path) + file_name;
@@ -44,12 +46,12 @@ public class Main {
         ReadImage();
     }
 
-    private String GetFileName(String path){
+    private static String GetFileName(String path){
         String[] parts = path.split("\\\\");
         return  parts[parts.length - 1];
     }
 
-    private String GetParentPath(String path){
+    private static String GetParentPath(String path){
         String div = "\\\\";
         String[] parts = path.split(div);
         String parent = "";
@@ -107,11 +109,29 @@ public class Main {
         }
     }
 
+    private static String CheckSyntax(String path){
+        if(path.charAt(path.length() - 1) == '\\')return path;
+        path += "\\";
+        return path;
+    }
+
+    public static void SaveToFile(String result_path, String result_name){
+        String result = CheckSyntax(result_path) + result_name + ".txt";
+        System.out.println("name : " + result_name);
+        CreateFile(result);
+        WriteToFile(result, final_message);
+        GUI.ShowReadSaveResult("Hidden message has been saved to : " + result);
+    }
+
+    public static void ChangeDestinationPath(String path){
+        read_image_path = path;
+    }
+
     private static void ReadImage(){
         BufferedImage result_image = GetImage(read_image_path);
         int tot_pixels = result_image.getWidth() * result_image.getHeight();
         int pos = 0;
-        String final_message = "";
+        final_message = "";
         String char_collection = "";
         SeePixels(result_image);
         System.out.println("READING MESSAGE...");
@@ -139,6 +159,10 @@ public class Main {
         //System.out.println("Hidden message has been saved to result.txt");
         GUI.ShowResult(final_message);
 
+    }
+
+    public static String GetSourceFilePath(){
+        return read_image_path;
     }
 
     private static void CreateFile(String path){
